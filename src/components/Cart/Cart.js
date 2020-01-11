@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { baseUrl } from "config.js";
+import axios from "axios";
+import { baseUrl, prodBaseUrl, locationId } from "config.js";
 
-import useFetch from "utils/hooks/useFetch";
 import calculateSubtotal from "utils/calculateSubtotal";
 
 import ProductList from "./ProductList";
-
-const useCart = () => useFetch(`${baseUrl}/product/order.json`);
 
 const useSubtotal = (cartProducts = []) => {
   const [subtotal, setSubtotal] = useState(0);
@@ -18,8 +16,33 @@ const useSubtotal = (cartProducts = []) => {
 };
 
 const Cart = () => {
-  const { cart = {}, payment_method, postal_code, user } = useCart();
+  const [isLoading, setLoading] = useState([]);
+  const [cart, setCart] = useState({ products: [] });
+  const [productDetails, setProductDetails] = useState([]);
   const { products } = cart;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const orderEndpoint = `${baseUrl}/product/order.json`;
+      const { data } = await axios.get(orderEndpoint);
+      const { cart } = data;
+      setCart(cart);
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const productIdArray = cart.products.map(({ product_id }) => product_id);
+    const productIdString = productIdArray.join(",");
+    const productEndpoint = `${prodBaseUrl}?location_id=${locationId}&product_id=${productIdString}`;
+
+    const fetchData = async () => {
+      const { data } = await axios.get(productEndpoint);
+      setProductDetails(data);
+    };
+    fetchData();
+  }, [products]);
+
   const [subtotal] = useSubtotal(products);
   return (
     <section>

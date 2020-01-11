@@ -17,24 +17,32 @@ const useSubtotal = (cartProducts = []) => {
 
 const Cart = () => {
   const [isLoading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   const [cart, setCart] = useState({ products: [] });
   const [productDetails, setProductDetails] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const orderEndpoint = `${baseUrl}/product/order.json`;
-      const { data: cartData } = await axios.get(orderEndpoint);
-      const { cart } = cartData;
+      try {
+        const orderEndpoint = `${baseUrl}/product/order.json`;
+        const { data: cartData } = await axios.get(orderEndpoint);
+        const { cart } = cartData;
 
-      const productIdArray = cart.products.map(({ product_id }) => product_id);
-      const productIdString = productIdArray.join(",");
-      const productEndpoint = `${prodBaseUrl}?location_id=${locationId}&product_id=${productIdString}`;
+        const productIdArray = cart.products.map(
+          ({ product_id }) => product_id
+        );
+        const productIdString = productIdArray.join(",");
+        const productEndpoint = `${prodBaseUrl}?location_id=${locationId}&product_id=${productIdString}`;
 
-      const { data: productData } = await axios.get(productEndpoint);
-      const { products } = productData;
-      setCart(cart);
-      setProductDetails(products);
-      setLoading(false);
+        const { data: productData } = await axios.get(productEndpoint);
+        const { products } = productData;
+        setCart(cart);
+        setProductDetails(products);
+        setLoading(false);
+      } catch (err) {
+        setHasError(true);
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
@@ -43,6 +51,7 @@ const Cart = () => {
   return (
     <section>
       <h1>Cart</h1>
+      {hasError && <p>Error!</p>}
       <div>
         {isLoading ? (
           "Loading..."

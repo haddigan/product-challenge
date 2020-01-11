@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Dinero from "dinero.js";
 import { baseUrl } from "config.js";
+
+import calculateSubtotal from "utils/calculateSubtotal";
 
 import ProductList from "./ProductList";
 
@@ -20,19 +21,8 @@ const useFetchCart = () => {
 const useSubtotal = (cartProducts = []) => {
   const [subtotal, setSubtotal] = useState(0);
   useEffect(() => {
-    const initial = Dinero({ amount: 0, currency: "USD" });
-
-    const subtotal = cartProducts.reduce((accumulatedTotal, currentItem) => {
-      const { price, quantity } = currentItem;
-
-      const integerPrice = Math.round(price * 100);
-      const itemTotal = Dinero({
-        amount: integerPrice,
-        currency: "USD"
-      }).multiply(quantity);
-      return accumulatedTotal.add(itemTotal);
-    }, initial);
-    setSubtotal(subtotal);
+    const calculatedSubtotal = calculateSubtotal(cartProducts);
+    setSubtotal(calculatedSubtotal);
   }, [cartProducts]);
   return subtotal ? [subtotal.toFormat("$0,0.00")] : [null];
 };
@@ -44,10 +34,7 @@ const Cart = () => {
   return (
     <section>
       <h1>Cart</h1>
-      <div>
-        {products && <ProductList products={products} />}
-        {JSON.stringify({ payment_method, postal_code, user })}
-      </div>
+      <div>{products && <ProductList products={products} />}</div>
       {subtotal && <div>subtotal: {subtotal}</div>}
     </section>
   );

@@ -4,6 +4,7 @@ import DiscountedPrice from "./DiscountedPrice";
 import stripTags from "utils/stripTags";
 
 const Product = ({ quantity, price, couponPrice, details }) => {
+  const hasDiscount = couponPrice !== price;
   const { images, name, description, size } = details;
   const [image] = images;
 
@@ -17,7 +18,7 @@ const Product = ({ quantity, price, couponPrice, details }) => {
         <dd>{quantity}</dd>
         <dt>Price:</dt>
         <dd>
-          {couponPrice ? (
+          {hasDiscount ? (
             <DiscountedPrice price={price} coupon={couponPrice} />
           ) : (
             <span>{price}</span>

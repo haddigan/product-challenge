@@ -1,22 +1,12 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { baseUrl } from "config.js";
 
+import useFetch from "utils/hooks/useFetch";
 import calculateSubtotal from "utils/calculateSubtotal";
 
 import ProductList from "./ProductList";
 
-const useFetchCart = () => {
-  const [data, setData] = useState({});
-  useEffect(() => {
-    const fetch = async () => {
-      const { data } = await axios.get(`${baseUrl}/product/order.json`);
-      setData(data);
-    };
-    fetch();
-  }, []);
-  return data;
-};
+const useCart = () => useFetch(`${baseUrl}/product/order.json`);
 
 const useSubtotal = (cartProducts = []) => {
   const [subtotal, setSubtotal] = useState(0);
@@ -28,7 +18,7 @@ const useSubtotal = (cartProducts = []) => {
 };
 
 const Cart = () => {
-  const { cart = {}, payment_method, postal_code, user } = useFetchCart();
+  const { cart = {}, payment_method, postal_code, user } = useCart();
   const { products } = cart;
   const [subtotal] = useSubtotal(products);
   return (

@@ -45,15 +45,17 @@ const Cart = () => {
       <h1>Cart</h1>
       <div>
         {isLoading ? (
-          "Loading"
+          "Loading..."
         ) : (
-          <ProductList
-            products={cart.products}
-            productDetails={productDetails}
-          />
+          <>
+            <ProductList
+              products={cart.products}
+              productDetails={productDetails}
+            />
+            {subtotal && <div>Subtotal: {subtotal}</div>}
+          </>
         )}
       </div>
-      {subtotal && <div>subtotal: {subtotal}</div>}
     </section>
   );
 };

@@ -16,38 +16,43 @@ const useSubtotal = (cartProducts = []) => {
 };
 
 const Cart = () => {
-  const [isLoading, setLoading] = useState([]);
+  const [isLoading, setLoading] = useState(true);
   const [cart, setCart] = useState({ products: [] });
   const [productDetails, setProductDetails] = useState([]);
-  const { products } = cart;
 
   useEffect(() => {
     const fetchData = async () => {
       const orderEndpoint = `${baseUrl}/product/order.json`;
-      const { data } = await axios.get(orderEndpoint);
-      const { cart } = data;
+      const { data: cartData } = await axios.get(orderEndpoint);
+      const { cart } = cartData;
+
+      const productIdArray = cart.products.map(({ product_id }) => product_id);
+      const productIdString = productIdArray.join(",");
+      const productEndpoint = `${prodBaseUrl}?location_id=${locationId}&product_id=${productIdString}`;
+
+      const { data: productData } = await axios.get(productEndpoint);
+      const { products } = productData;
       setCart(cart);
+      setProductDetails(products);
+      setLoading(false);
     };
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const productIdArray = cart.products.map(({ product_id }) => product_id);
-    const productIdString = productIdArray.join(",");
-    const productEndpoint = `${prodBaseUrl}?location_id=${locationId}&product_id=${productIdString}`;
-
-    const fetchData = async () => {
-      const { data } = await axios.get(productEndpoint);
-      setProductDetails(data);
-    };
-    fetchData();
-  }, [products]);
-
-  const [subtotal] = useSubtotal(products);
+  const [subtotal] = useSubtotal(cart.products);
   return (
     <section>
       <h1>Cart</h1>
-      <div>{products && <ProductList products={products} />}</div>
+      <div>
+        {isLoading ? (
+          "Loading"
+        ) : (
+          <ProductList
+            products={cart.products}
+            productDetails={productDetails}
+          />
+        )}
+      </div>
       {subtotal && <div>subtotal: {subtotal}</div>}
     </section>
   );

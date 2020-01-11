@@ -1,10 +1,12 @@
 import React from "react";
+import DiscountedPrice from "./DiscountedPrice";
 
 import stripTags from "utils/stripTags";
 
-const Product = ({ quantity, price, details }) => {
+const Product = ({ quantity, price, couponPrice, details }) => {
   const { images, name, description, size } = details;
   const [image] = images;
+
   return (
     <li>
       <img src={image.thumb} alt={name} />
@@ -13,8 +15,14 @@ const Product = ({ quantity, price, details }) => {
         <dd>{name}</dd>
         <dt>Quantity:</dt>
         <dd>{quantity}</dd>
-        <dt>Total Price:</dt>
-        <dd>{price}</dd>
+        <dt>Price:</dt>
+        <dd>
+          {couponPrice ? (
+            <DiscountedPrice price={price} coupon={couponPrice} />
+          ) : (
+            <span>{price}</span>
+          )}
+        </dd>
         <dt>Description:</dt>
         <dd>{stripTags(description)} </dd>
         {size && (
